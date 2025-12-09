@@ -4,6 +4,10 @@ import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
+import {
+     AvailableBoardPriority, 
+     AvailableBoardTages 
+} from "../utils/constants.js";
 
 const createBoard = asyncHandler(async(req, res) => {
     const { boardName, tags, prioripy, startDate, endDate} = req.body
@@ -125,6 +129,65 @@ const getAllBoard = asyncHandler(async(req, res) => {
 
 
 const updateBoard  = asyncHandler(async(req, res) => {
+
+    const {
+        tags, 
+        prioripy, 
+        boardName, 
+        startDate, 
+        endDate
+    }  = req.body
+    
+    if(
+        !tags || 
+        !prioripy || 
+        !boardName || 
+        !startDate || 
+        !endDate
+    ) throw new ApiError(404, "update Board info is requreid")
+
+    if(!AvailableBoardTages.includes(tags)){
+        throw  new ApiError(403, "Invalid Tages")
+    }
+
+    if(!AvailableBoardPriority.includes(prioripy)){
+        throw  new ApiError(403, "Invalid Priority")
+    }
+
+    const { userId } = req.params
+    if(!userId) throw new ApiError(404, "userid is required")
+
+    const user  = await User.findById(userId)
+    if(!user) throw new ApiError(404, "user is required")
+
+    const { boardId } = req.params
+    if(!boardId) throw new ApiError(402, "board Id is required")
+
+    const existingBoard = await Board.findById(boardId)
+    if(!existingBoard) throw new ApiError(402, "existingBoard is required")
+
+    const board = await Board.findByIdAndUpdate(
+        boardId,
+        {
+            tags, 
+            prioripy, 
+            boardName,
+            assignBy : user._id,  
+            startDate, 
+            endDate
+        },
+        {
+            new: true
+        }
+    )
+    if(!board) throw new ApiError(402, "boad is required")
+
+    return res.status(200).json(new ApiResponse(
+        200, 
+        board, 
+        "board update successfully"
+    ))
+
 
 })
 
