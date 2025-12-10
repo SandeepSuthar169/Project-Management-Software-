@@ -138,12 +138,85 @@ const getAllTodo = asyncHandler(async (req, res) => {
 })
 
 const updateTodo = asyncHandler(async (req, res) => {
+    const {
+            todoName, 
+            status, 
+            piority, 
+            startDate, 
+            endDate,
+            description,
+            estimatedHours
+        }  = req.body
+    
+        if(
+            !todoName || 
+            !status ||
+            !piority ||
+            !startDate || 
+            !endDate ||
+            !description || 
+            !estimatedHours
+        ) throw new ApiError(404, "update todo info is requreid")
+    
+        if(!AvailableTodoStatuses.includes(status)){
+            throw  new ApiError(403, "Invalid status")
+        }
+    
+        if(!AvailableTodoPriority.includes(piority)){
+            throw  new ApiError(403, "Invalid Priority")
+        }
+    
+        const { userId } = req.params
+        if(!userId) throw new ApiError(404, "userid is required")
+    
+        const user  = await User.findById(userId)
+        if(!user) throw new ApiError(404, "user is required")
+    
+        const { todoId } = req.params
+        if(!todoId) throw new ApiError(402, "todo Id is required")
+    
+        const existingTodo = await Todo.findById(todoId)
+        if(!existingTodo) throw new ApiError(402, "existingTodo is required")
+    
+        const todo = await Todo.findByIdAndUpdate(
+            todoId,
+            {
+                todoName, 
+                status, 
+                piority, 
+                startDate, 
+                endDate,
+                description,
+                estimatedHours,
+                assignBy: user._id
+            },
+            {
+                new: true
+            }
+        )
+        if(!todo) throw new ApiError(402, "todo is required")
+    
+        return res.status(200).json(new ApiResponse(
+            200, 
+            todo, 
+            "todo update successfully"
+        ))
     
 })
 
 
 const deleteTodo = asyncHandler(async (req, res) => {
+    const { boardId } = req.params
+    if(!boardId) throw new ApiError(402, "board Id is required")
 
+    const deleBoard = await Board.findByIdAndDelete(boardId)
+    if(!deleBoard) throw new ApiError(402, "deleBoard is required")
+
+    return res.status(200).json(new ApiResponse(
+        200, 
+        deleBoard, 
+        "delete board successfully"
+    ))
 })
 
 
