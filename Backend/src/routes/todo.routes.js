@@ -13,6 +13,7 @@ router.route("/createTodo/:userId").post(createTodo)
 router.route("/getTodo/:todoId").get(getTodo)
 router.route("/getAllTodo/:userId").get(getAllTodo)
 router.route("/updateTodo/:userId/:todoId").post(updateTodo)
+router.route("/deleteTodo/:todoId").delete(deleteTodo)
 
 
 export default router

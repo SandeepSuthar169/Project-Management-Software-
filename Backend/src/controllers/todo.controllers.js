@@ -206,15 +206,15 @@ const updateTodo = asyncHandler(async (req, res) => {
 
 
 const deleteTodo = asyncHandler(async (req, res) => {
-    const { boardId } = req.params
-    if(!boardId) throw new ApiError(402, "board Id is required")
+    const { todoId } = req.params
+    if(!todoId) throw new ApiError(402, "todo  Id is required")
 
-    const deleBoard = await Board.findByIdAndDelete(boardId)
-    if(!deleBoard) throw new ApiError(402, "deleBoard is required")
+    const deleTodo = await Todo.findByIdAndDelete(todoId)
+    if(!deleTodo) throw new ApiError(402, "deleTodo is required")
 
     return res.status(200).json(new ApiResponse(
         200, 
-        deleBoard, 
+        deleTodo, 
         "delete board successfully"
     ))
 })
